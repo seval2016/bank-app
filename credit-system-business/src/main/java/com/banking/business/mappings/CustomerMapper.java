@@ -6,12 +6,15 @@ import com.banking.business.dtos.responses.IndividualCustomerResponse;
 import com.banking.business.dtos.responses.CorporateCustomerResponse;
 import com.banking.entities.IndividualCustomer;
 import com.banking.entities.CorporateCustomer;
+import com.banking.entities.Customer;
+import com.banking.business.dtos.responses.CustomerResponse;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.ReportingPolicy;
 
-@Mapper(componentModel = "spring")
-public interface CustomerMapping {
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+public interface CustomerMapper {
     
     @Bean
     public ModelMapper modelMapper() {
@@ -21,4 +24,6 @@ public interface CustomerMapping {
        IndividualCustomerResponse mapToIndividualCustomerResponse(IndividualCustomer customer);
        CorporateCustomerResponse mapToCorporateCustomerResponse(CorporateCustomer customer);
     }
+
+    CustomerResponse toResponse(Customer customer);
 } 
