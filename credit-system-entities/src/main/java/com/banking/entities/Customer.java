@@ -10,18 +10,16 @@ import lombok.Setter;
 @Inheritance(strategy = InheritanceType.JOINED)
 @Getter
 @Setter
-public abstract class Customer extends BaseEntity<Long> {
-
-    @Column(name = "customer_number", nullable = false, unique = true)
+public abstract class Customer extends BaseEntity {
+    @Column(name = "customer_number", unique = true, nullable = false)
     private String customerNumber;
-    
-    @Column(name = "phone_number")
-    private String phoneNumber;
     
     @Column(name = "email", unique = true)
     private String email;
     
+    @Column(name = "phone_number")
+    private String phoneNumber;
+    
     @Column(name = "address")
     private String address;
-    
 } 

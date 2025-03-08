@@ -5,14 +5,16 @@ import lombok.Getter;
 import lombok.Setter;
 import java.time.LocalDateTime;
 
+
 @MappedSuperclass
 @Getter
 @Setter
-public abstract class BaseEntity<T> {
+public abstract class BaseEntity {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private T id;
+    @Column(name = "id")
+    private Long id;
     
     @Column(name = "created_date")
     private LocalDateTime createdDate;
