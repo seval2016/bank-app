@@ -6,7 +6,7 @@ import lombok.Data;
 public class CustomerResponse {
     private Long id;
     private String customerNumber;
-    private String phoneNumber;
     private String email;
+    private String phoneNumber;
     private String address;
 } 

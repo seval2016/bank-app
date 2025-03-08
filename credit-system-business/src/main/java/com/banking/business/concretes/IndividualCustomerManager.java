@@ -10,6 +10,8 @@ import com.banking.entities.IndividualCustomer;
 import com.banking.repositories.abstracts.IndividualCustomerRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import com.banking.core.crossCuttingConcerns.exceptions.types.BusinessException;
+import com.banking.business.constants.Messages;
 
 import java.util.List;
 import java.util.UUID;
@@ -24,13 +26,19 @@ public class IndividualCustomerManager implements IndividualCustomerService {
     @Override
     public IndividualCustomerResponse add(CreateIndividualCustomerRequest request) {
         rules.checkIfEmailExists(request.getEmail());
-        rules.checkIfNationalIdentityExists(request.getNationalIdentity());
+        checkIfNationalIdentityExists(request.getNationalIdentity());
         
         IndividualCustomer customer = mapper.toEntity(request);
         customer.setCustomerNumber(UUID.randomUUID().toString());
         
         individualCustomerRepository.save(customer);
         return mapper.toResponse(customer);
+    }
+
+    private void checkIfNationalIdentityExists(String nationalIdentity) {
+        if (individualCustomerRepository.existsByNationalIdentity(nationalIdentity)) {
+            throw new BusinessException(Messages.Customer.NATIONAL_IDENTITY_ALREADY_EXISTS, "NATIONAL_IDENTITY_EXISTS");
+        }
     }
 
     @Override
@@ -50,7 +58,11 @@ public class IndividualCustomerManager implements IndividualCustomerService {
 
     @Override
     public List<CustomerResponse> getAll() {
-        return getAllIndividuals();
+        return individualCustomerRepository.findAll()
+                .stream()
+                .map(customer -> mapper.toResponse(customer))
+                .map(response -> (CustomerResponse) response)
+                .toList();
     }
 
     @Override

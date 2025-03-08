@@ -4,12 +4,13 @@ import com.banking.business.abstracts.CorporateCustomerService;
 import com.banking.business.dtos.requests.CreateCorporateCustomerRequest;
 import com.banking.business.dtos.responses.CorporateCustomerResponse;
 import com.banking.business.dtos.responses.CustomerResponse;
+import com.banking.business.mappings.CorporateCustomerMapper;
 import com.banking.business.rules.CustomerBusinessRules;
 import com.banking.entities.CorporateCustomer;
 import com.banking.repositories.abstracts.CorporateCustomerRepository;
 import lombok.AllArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import com.banking.business.constants.Messages;
 
 import java.util.List;
 import java.util.UUID;
@@ -19,7 +20,7 @@ import java.util.UUID;
 public class CorporateCustomerManager implements CorporateCustomerService {
     private final CorporateCustomerRepository corporateCustomerRepository;
     private final CustomerBusinessRules rules;
-    private final ModelMapper modelMapper;
+    private final CorporateCustomerMapper mapper;
 
     @Override
     public CorporateCustomerResponse add(CreateCorporateCustomerRequest request) {
@@ -29,41 +30,43 @@ public class CorporateCustomerManager implements CorporateCustomerService {
         checkIfTradeRegisterNumberExists(request.getTradeRegisterNumber());
         
         // Yeni kurumsal müşteri oluşturma
-        CorporateCustomer customer = modelMapper.map(request, CorporateCustomer.class);
+        CorporateCustomer customer = mapper.toEntity(request);
         customer.setCustomerNumber(UUID.randomUUID().toString());
         
         // Kaydetme ve response dönüşü
         corporateCustomerRepository.save(customer);
-        return modelMapper.map(customer, CorporateCustomerResponse.class);
+        return mapper.toResponse(customer);
     }
 
     @Override
     public List<CorporateCustomerResponse> getAllCorporates() {
         return corporateCustomerRepository.findAll()
                 .stream()
-                .map(customer -> modelMapper.map(customer, CorporateCustomerResponse.class))
+                .map(mapper::toResponse)
                 .toList();
     }
 
     @Override
     public CorporateCustomerResponse getByTaxNumber(String taxNumber) {
-        return modelMapper.map(
-                corporateCustomerRepository.findByTaxNumber(taxNumber),
-                CorporateCustomerResponse.class
+        return mapper.toResponse(
+                corporateCustomerRepository.findByTaxNumber(taxNumber)
         );
     }
 
     // CustomerService'den gelen metodların implementasyonu
     @Override
     public List<CustomerResponse> getAll() {
-        return getAllCorporates();
+        return corporateCustomerRepository.findAll()
+                .stream()
+                .map(customer -> mapper.toResponse(customer))
+                .map(response -> (CustomerResponse) response)
+                .toList();
     }
 
     @Override
     public CustomerResponse getById(Long id) {
-        return modelMapper.map(
-                corporateCustomerRepository.findById(id).orElseThrow(),
-                CorporateCustomerResponse.class
+        return mapper.toResponse(
+                corporateCustomerRepository.findById(id).orElseThrow()
         );
     }
 

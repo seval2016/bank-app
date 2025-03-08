@@ -1,6 +1,6 @@
 package com.banking.business.rules;
 
-import com.banking.business.constants.Messages;
+import com.banking.core.crossCuttingConcerns.exceptions.types.BusinessException;
 import com.banking.repositories.abstracts.CustomerRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -12,13 +12,13 @@ public class CustomerBusinessRules {
 
     public void checkIfEmailExists(String email) {
         if (customerRepository.existsByEmail(email)) {
-            throw new RuntimeException(Messages.Customer.EMAIL_ALREADY_EXISTS);
+            throw new BusinessException("Email already exists", "EMAIL_EXISTS");
         }
     }
 
     public void checkIfCustomerNumberExists(String customerNumber) {
         if (customerRepository.existsByCustomerNumber(customerNumber)) {
-            throw new RuntimeException(Messages.Customer.CUSTOMER_NUMBER_ALREADY_EXISTS);
+            throw new BusinessException("Customer number already exists", "CUSTOMER_NUMBER_EXISTS");
         }
     }
 } 

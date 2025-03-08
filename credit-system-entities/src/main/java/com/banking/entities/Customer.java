@@ -5,12 +5,11 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter
-@Setter
 @Entity
 @Table(name = "customers")
 @Inheritance(strategy = InheritanceType.JOINED)
-
+@Getter
+@Setter
 public abstract class Customer extends BaseEntity<Long> {
 
     @Column(name = "customer_number", nullable = false, unique = true)
@@ -19,7 +18,7 @@ public abstract class Customer extends BaseEntity<Long> {
     @Column(name = "phone_number")
     private String phoneNumber;
     
-    @Column(name = "email")
+    @Column(name = "email", unique = true)
     private String email;
     
     @Column(name = "address")

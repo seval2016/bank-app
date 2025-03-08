@@ -3,8 +3,8 @@ package com.banking.business.concretes;
 import com.banking.business.abstracts.CustomerService;
 import com.banking.business.dtos.responses.CustomerResponse;
 import com.banking.repositories.abstracts.CustomerRepository;
+import com.banking.business.mappings.CustomerMapper;
 import lombok.AllArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,21 +13,20 @@ import java.util.List;
 @AllArgsConstructor
 public class CustomerManager implements CustomerService {
     private final CustomerRepository customerRepository;
-    private final ModelMapper modelMapper;
+    private final CustomerMapper mapper;
 
     @Override
     public List<CustomerResponse> getAll() {
         return customerRepository.findAll()
                 .stream()
-                .map(customer -> modelMapper.map(customer, CustomerResponse.class))
+                .map(mapper::toResponse)
                 .toList();
     }
 
     @Override
     public CustomerResponse getById(Long id) {
-        return modelMapper.map(
-                customerRepository.findById(id).orElseThrow(),
-                CustomerResponse.class
+        return mapper.toResponse(
+                customerRepository.findById(id).orElseThrow()
         );
     }
 
