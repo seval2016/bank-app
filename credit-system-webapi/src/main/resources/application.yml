@@ -10,6 +10,11 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+  mvc:
+    cors:
+      allowed-origins: "*"
+      allowed-methods: GET,POST,PUT,DELETE
+      allowed-headers: "*"
 
 springdoc:
   api-docs:

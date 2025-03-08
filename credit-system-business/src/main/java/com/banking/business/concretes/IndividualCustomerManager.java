@@ -9,9 +9,14 @@ import com.banking.business.rules.CustomerBusinessRules;
 import com.banking.entities.IndividualCustomer;
 import com.banking.repositories.abstracts.IndividualCustomerRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import com.banking.core.crossCuttingConcerns.exceptions.types.BusinessException;
 import com.banking.business.constants.Messages;
+import com.banking.business.dtos.responses.PaginatedResponse;
 
 import java.util.List;
 import java.util.UUID;
@@ -42,14 +47,6 @@ public class IndividualCustomerManager implements IndividualCustomerService {
     }
 
     @Override
-    public List<IndividualCustomerResponse> getAllIndividuals() {
-        return individualCustomerRepository.findAll()
-                .stream()
-                .map(mapper::toResponse)
-                .toList();
-    }
-
-    @Override
     public IndividualCustomerResponse getByNationalIdentity(String nationalIdentity) {
         return mapper.toResponse(
                 individualCustomerRepository.findByNationalIdentity(nationalIdentity)
@@ -75,5 +72,29 @@ public class IndividualCustomerManager implements IndividualCustomerService {
     @Override
     public void deleteById(Long id) {
         individualCustomerRepository.deleteById(id);
+    }
+
+    @Override
+    public PaginatedResponse<IndividualCustomerResponse> getAllPaginated(int pageNumber, int pageSize, String sortBy, String sortDirection) {
+        Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), sortBy);
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
+        
+        Page<IndividualCustomer> customerPage = individualCustomerRepository.findAll(pageable);
+        List<IndividualCustomerResponse> customerResponses = customerPage.getContent()
+                .stream()
+                .map(mapper::toResponse)
+                .toList();
+        
+        return new PaginatedResponse<>(
+                customerResponses,
+                customerPage.getNumber(),
+                customerPage.getSize(),
+                customerPage.getTotalElements(),
+                customerPage.getTotalPages(),
+                customerPage.isFirst(),
+                customerPage.isLast(),
+                customerPage.hasNext(),
+                customerPage.hasPrevious()
+        );
     }
 } 
