@@ -1,13 +1,14 @@
 package com.banking.business.concretes;
 
 import com.banking.business.abstracts.CustomerService;
-import com.banking.business.dtos.responses.CustomerResponse;
+import com.banking.entities.Customer;
 import com.banking.repositories.abstracts.CustomerRepository;
 import com.banking.business.mappings.CustomerMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -16,22 +17,24 @@ public class CustomerManager implements CustomerService {
     private final CustomerMapper mapper;
 
     @Override
-    public List<CustomerResponse> getAll() {
-        return customerRepository.findAll()
-                .stream()
-                .map(mapper::toResponse)
-                .toList();
+    public List<Customer> getAllCustomers() {
+        return customerRepository.findAll();
     }
 
     @Override
-    public CustomerResponse getById(Long id) {
-        return mapper.toResponse(
-                customerRepository.findById(id).orElseThrow()
-        );
+    public Optional<Customer> getCustomerById(Long id) {
+        return customerRepository.findById(id);
     }
 
     @Override
-    public void deleteById(Long id) {
-        customerRepository.deleteById(id);
+    public Optional<Customer> getCustomerByNumber(String customerNumber) {
+        return Optional.ofNullable(customerRepository.findByCustomerNumber(customerNumber));
+    }
+
+    @Override
+    public void validateCustomerNumber(String customerNumber) {
+        if (customerRepository.existsByCustomerNumber(customerNumber)) {
+            throw new RuntimeException("Customer number already exists");
+        }
     }
 } 

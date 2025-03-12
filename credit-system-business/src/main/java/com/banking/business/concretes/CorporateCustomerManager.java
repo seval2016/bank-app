@@ -3,10 +3,10 @@ package com.banking.business.concretes;
 import com.banking.business.abstracts.CorporateCustomerService;
 import com.banking.business.dtos.requests.CreateCorporateCustomerRequest;
 import com.banking.business.dtos.responses.CorporateCustomerResponse;
-import com.banking.business.dtos.responses.CustomerResponse;
 import com.banking.business.mappings.CorporateCustomerMapper;
 import com.banking.business.rules.CustomerBusinessRules;
 import com.banking.entities.CorporateCustomer;
+import com.banking.entities.Customer;
 import com.banking.repositories.abstracts.CorporateCustomerRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,6 +14,7 @@ import com.banking.business.constants.Messages;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -53,26 +54,29 @@ public class CorporateCustomerManager implements CorporateCustomerService {
         );
     }
 
-    // CustomerService'den gelen metodların implementasyonu
     @Override
-    public List<CustomerResponse> getAll() {
-        return corporateCustomerRepository.findAll()
-                .stream()
-                .map(customer -> mapper.toResponse(customer))
-                .map(response -> (CustomerResponse) response)
+    public List<Customer> getAllCustomers() {
+        return corporateCustomerRepository.findAll().stream()
+                .map(customer -> (Customer) customer)
                 .toList();
     }
 
     @Override
-    public CustomerResponse getById(Long id) {
-        return mapper.toResponse(
-                corporateCustomerRepository.findById(id).orElseThrow()
-        );
+    public Optional<Customer> getCustomerById(Long id) {
+        return corporateCustomerRepository.findById(id).map(customer -> (Customer) customer);
     }
 
     @Override
-    public void deleteById(Long id) {
-        corporateCustomerRepository.deleteById(id);
+    public Optional<Customer> getCustomerByNumber(String customerNumber) {
+        return Optional.ofNullable(corporateCustomerRepository.findByCustomerNumber(customerNumber))
+                .map(customer -> (Customer) customer);
+    }
+
+    @Override
+    public void validateCustomerNumber(String customerNumber) {
+        if (corporateCustomerRepository.existsByCustomerNumber(customerNumber)) {
+            throw new RuntimeException(Messages.Customer.CUSTOMER_NUMBER_ALREADY_EXISTS);
+        }
     }
 
     // Private yardımcı metodlar

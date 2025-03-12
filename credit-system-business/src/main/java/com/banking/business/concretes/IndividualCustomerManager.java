@@ -7,6 +7,7 @@ import com.banking.business.dtos.responses.CustomerResponse;
 import com.banking.business.mappings.IndividualCustomerMapper;
 import com.banking.business.rules.CustomerBusinessRules;
 import com.banking.entities.IndividualCustomer;
+import com.banking.entities.Customer;
 import com.banking.repositories.abstracts.IndividualCustomerRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -20,6 +21,7 @@ import com.banking.business.dtos.responses.PaginatedResponse;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -54,27 +56,6 @@ public class IndividualCustomerManager implements IndividualCustomerService {
     }
 
     @Override
-    public List<CustomerResponse> getAll() {
-        return individualCustomerRepository.findAll()
-                .stream()
-                .map(customer -> mapper.toResponse(customer))
-                .map(response -> (CustomerResponse) response)
-                .toList();
-    }
-
-    @Override
-    public CustomerResponse getById(Long id) {
-        return mapper.toResponse(
-                individualCustomerRepository.findById(id).orElseThrow()
-        );
-    }
-
-    @Override
-    public void deleteById(Long id) {
-        individualCustomerRepository.deleteById(id);
-    }
-
-    @Override
     public PaginatedResponse<IndividualCustomerResponse> getAllPaginated(int pageNumber, int pageSize, String sortBy, String sortDirection) {
         Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), sortBy);
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
@@ -96,5 +77,30 @@ public class IndividualCustomerManager implements IndividualCustomerService {
                 customerPage.hasNext(),
                 customerPage.hasPrevious()
         );
+    }
+
+    @Override
+    public List<Customer> getAllCustomers() {
+        return individualCustomerRepository.findAll().stream()
+                .map(customer -> (Customer) customer)
+                .toList();
+    }
+
+    @Override
+    public Optional<Customer> getCustomerById(Long id) {
+        return individualCustomerRepository.findById(id).map(customer -> (Customer) customer);
+    }
+
+    @Override
+    public Optional<Customer> getCustomerByNumber(String customerNumber) {
+        return Optional.ofNullable(individualCustomerRepository.findByCustomerNumber(customerNumber))
+                .map(customer -> (Customer) customer);
+    }
+
+    @Override
+    public void validateCustomerNumber(String customerNumber) {
+        if (individualCustomerRepository.existsByCustomerNumber(customerNumber)) {
+            throw new RuntimeException(Messages.Customer.CUSTOMER_NUMBER_ALREADY_EXISTS);
+        }
     }
 } 

@@ -1,6 +1,7 @@
 package com.banking.core.security;
 
 import com.banking.repositories.abstracts.UserRepository;
+import com.banking.entities.UserDetailsAdapter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,6 +22,7 @@ public class ApplicationConfig {
     @Bean
     public UserDetailsService userDetailsService() {
         return username -> repository.findByEmail(username)
+                .map(user -> new UserDetailsAdapter(user))
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 

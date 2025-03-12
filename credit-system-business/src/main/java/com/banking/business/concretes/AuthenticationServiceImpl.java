@@ -8,6 +8,7 @@ import com.banking.core.security.JwtService;
 import com.banking.entities.IndividualCustomer;
 import com.banking.entities.User;
 import com.banking.entities.Role;
+import com.banking.entities.UserDetailsAdapter;
 import com.banking.repositories.abstracts.IndividualCustomerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -42,7 +43,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         user.setCustomer(customer);
         repository.save(customer);
         
-        var jwtToken = jwtService.generateToken(user);
+        var userDetails = new UserDetailsAdapter(user);
+        var jwtToken = jwtService.generateToken(userDetails);
         return AuthenticationResponse.builder()
                 .token(jwtToken)
                 .build();

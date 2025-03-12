@@ -9,7 +9,9 @@ import java.util.Optional;
 
 public interface IndividualCustomerRepository extends JpaRepository<IndividualCustomer, Long> {
     boolean existsByNationalIdentity(String nationalIdentity);
+    boolean existsByCustomerNumber(String customerNumber);
     IndividualCustomer findByNationalIdentity(String nationalIdentity);
+    IndividualCustomer findByCustomerNumber(String customerNumber);
     @Query("SELECT ic FROM IndividualCustomer ic WHERE ic.user.email = :email")
     Optional<IndividualCustomer> findByEmail(@Param("email") String email);
 } 

@@ -1,14 +1,11 @@
 package com.banking.entities;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-
-import java.util.Collection;
-import java.util.List;
 
 @Data
 @SuperBuilder
@@ -17,39 +14,26 @@ import java.util.List;
 @Entity
 @Table(name = "individual_customers")
 @EqualsAndHashCode(callSuper = true)
-public class IndividualCustomer extends Customer implements UserDetails {
-    private String password;
+public class IndividualCustomer extends Customer {
+    
+    @NotBlank(message = "First name cannot be empty")
+    @Size(min = 2, max = 50, message = "First name must be between 2 and 50 characters")
+    @Column(name = "first_name", nullable = false)
     private String firstName;
+    
+    @NotBlank(message = "Last name cannot be empty")
+    @Size(min = 2, max = 50, message = "Last name must be between 2 and 50 characters")
+    @Column(name = "last_name", nullable = false)
     private String lastName;
+    
+    @NotBlank(message = "National identity cannot be empty")
+    @Pattern(regexp = "^\\d{11}$", message = "National identity must be 11 digits")
+    @Column(name = "national_identity", nullable = false, unique = true)
     private String nationalIdentity;
-
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_INDIVIDUAL"));
-    }
-
-    @Override
-    public String getUsername() {
-        return getUser().getEmail();
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
-    }
+    
+    @Column(name = "monthly_income")
+    private Double monthlyIncome;
+    
+    @Column(name = "credit_score")
+    private Integer creditScore;
 } 
